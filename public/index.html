@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Compras</title>
+</head>
+
+<body>
+    <h1>Lista de Compras</h1>
+    <ul id="shopping-list"></ul>
+    <form onsubmit="addItem(); return false">
+        <input id="item-input" type="text" placeholder="Novo item" />
+        <button type="submit">Adicionar</button>
+    </form>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        const shoppingListElement = document.getElementById('shopping-list');
+        const itemInput = document.getElementById('item-input');
+
+        socket.on('shopping list', (shoppingList) => {
+            shoppingListElement.innerHTML = '';
+            shoppingList.forEach((item, index) => {
+                const li = document.createElement('li');
+                li.textContent = item;
+                li.addEventListener('click', () => removeItem(index));
+                shoppingListElement.appendChild(li);
+            });
+        });
+
+        function addItem() {
+            const item = itemInput.value;
+            if (item) {
+                socket.emit('add item', item);
+                itemInput.value = '';
+            }
+        }
+
+        function removeItem(index) {
+            socket.emit('remove item', index);
+        }
+    </script>
+</body>
+
+</html>
